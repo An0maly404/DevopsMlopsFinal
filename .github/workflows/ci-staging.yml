@@ -27,11 +27,37 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
           cd backend
           pip install -r requirements.txt
           pip install pytest httpx
+          pip install dvc scikit-learn pandas
+
+      - name: Configure DVC auth for DagsHub
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        run: |
+          dvc remote modify origin --local auth basic
+          dvc remote modify origin --local user ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+          dvc remote modify origin --local password ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+
+      - name: Pull data with DVC
+        run: dvc pull
+
+      - name: Train model
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        run: python training/train.py
+
+      - name: Register model in MLflow registry
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        run: python training/register_model.py
 
       - name: Run full test suite
         env:
