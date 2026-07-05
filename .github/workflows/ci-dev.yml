@@ -1,0 +1,41 @@
+name: CI — PR into dev
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest httpx
+
+      - name: Run unit tests
+        run: |
+          cd backend
+          python -m pytest tests/test_validation.py tests/test_dvc_utils.py tests/test_prediction.py -v
+
+      - name: Run integration tests
+        run: |
+          cd backend
+          python -m pytest tests/test_integration.py tests/test_e2e.py -v
+
+      - name: Build backend Docker image
+        run: docker build -t mlops-backend ./backend
+
+      - name: Build frontend Docker image
+        run: docker build -t mlops-frontend ./frontend
