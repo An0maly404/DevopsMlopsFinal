@@ -7,7 +7,12 @@ services:
     rootDir: backend
     dockerfilePath: ./Dockerfile
     envVars:
-      - fromGroup: mlops-secrets
+      - key: MLFLOW_TRACKING_URI
+        value: https://dagshub.com/noah.hemon/DevopsMLopsProject.mlflow
+      - key: MLFLOW_TRACKING_USERNAME
+        value: noah.hemon
+      - key: MLFLOW_TRACKING_PASSWORD
+        value: 8cb0606103a4ffd2822ad447ce00fbff200b656a
     healthCheckPath: /health
 
   - type: web
