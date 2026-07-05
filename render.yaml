@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: mlops-backend
+    runtime: docker
+    repo: https://github.com/An0maly404/DevopsMlopsFinal
+    branch: main
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: MLFLOW_TRACKING_URI
+        fromGroup: mlops-secrets
+      - key: MLFLOW_TRACKING_USERNAME
+        fromGroup: mlops-secrets
+      - key: MLFLOW_TRACKING_PASSWORD
+        fromGroup: mlops-secrets
+    healthCheckPath: /health
+
+  - type: web
+    name: mlops-frontend
+    runtime: docker
+    repo: https://github.com/An0maly404/DevopsMlopsFinal
+    branch: main
+    rootDir: frontend
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: VITE_API_URL
+        value: https://mlops-backend.onrender.com
