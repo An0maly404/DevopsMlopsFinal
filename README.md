@@ -78,19 +78,21 @@ All three workflows read their DagsHub/MLflow credentials from GitHub Secrets (`
 
 ## Monitoring
 
-The backend exposes a `/metrics` endpoint via `prometheus-fastapi-instrumentator` (request count and latency, broken down by status code) plus a custom `backend_uptime_seconds` gauge. `docker-compose.yml` runs Prometheus and Grafana alongside the app, with Prometheus scraping the backend every 5 seconds and Grafana connected to it as a data source, showing request volume, latency, error rate, and uptime.
+The backend exposes a `/metrics` endpoint via `prometheus-fastapi-instrumentator` (request count and latency, broken down by status code) plus a custom `backend_uptime_seconds` gauge. Prometheus and Grafana also run locally via `docker-compose.yml` for development.
 
-- Prometheus UI: `http://localhost:9090`
-- Grafana dashboard: `http://localhost:3000` (login: `admin` / `admin`)
+In production, Prometheus is deployed as its own Render service and scrapes the live backend directly (confirmed via its `/api/v1/targets` endpoint - target `mlops-backend-j5im.onrender.com/metrics` is up). Grafana is deployed separately as its data source, though its dashboard is currently returning a 502 and needs a look.
 
-This currently only runs against the local `docker-compose` stack — Prometheus's scrape target is the internal `backend:8000` service name, not the public Render backend, so it isn't monitoring the live production deployment yet. Pointing it at production would mean either deploying Prometheus/Grafana as their own Render services scraping the public backend URL, or using a hosted option like Grafana Cloud.
+- Prometheus (production): `https://mlops-prometheus-wa1c.onrender.com`
+- Grafana (production): `https://mlops-grafana-3skj.onrender.com` - currently down (502), needs redeploying
+- Prometheus UI (local): `http://localhost:9090`
+- Grafana dashboard (local): `http://localhost:3000` (login: `admin` / `admin`)
 
 ## Deployment
 
-The app deploys to [Render](https://render.com) via the `render.yaml` blueprint at the repo root - one web service for the backend, one for the frontend, both built from their Dockerfiles. `ci-staging.yml` and `ci-production.yml` trigger a Render deploy hook after their respective quality gates pass. See [DEPLOY.md](DEPLOY.md) for the full setup steps (Render account, environment secrets, GitHub deploy hook secrets).
+The app deploys to [Render](https://render.com) via the `render.yaml` blueprint at the repo root for the backend and frontend, with Prometheus and Grafana added as separate Render services. `ci-staging.yml` and `ci-production.yml` trigger a Render deploy hook after their respective quality gates pass. See [DEPLOY.md](DEPLOY.md) for the full setup steps (Render account, environment secrets, GitHub deploy hook secrets).
 
-- Frontend: `https://mlops-frontend.onrender.com`
-- Backend: `https://mlops-backend.onrender.com`
+- Frontend: `https://mlops-frontend-9y6w.onrender.com`
+- Backend: `https://mlops-backend-j5im.onrender.com`
 
 ## Reproducibility
 
