@@ -7,4 +7,4 @@ MODEL_NAME = "california-housing-model"
 
 
 def get_production_model():
-    return mlflow.sklearn.load_model(f"models:/{MODEL_NAME}@staging")
+    return mlflow.sklearn.load_model(f"models:/{MODEL_NAME}@production")
