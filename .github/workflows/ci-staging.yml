@@ -115,16 +115,20 @@ jobs:
           echo "BACKEND_IMAGE=ghcr.io/${OWNER}/mlops-backend:staging" >> $GITHUB_ENV
           echo "FRONTEND_IMAGE=ghcr.io/${OWNER}/mlops-frontend:staging" >> $GITHUB_ENV
 
-      - name: Deploy to staging via docker-compose
+      - name: Deploy to staging
         env:
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
           MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_STAGING_DEPLOY_HOOK }}
         run: |
-          echo "Staging deployment ready."
+          echo "Deploying to staging environment..."
           echo "Backend image:  ${BACKEND_IMAGE}"
           echo "Frontend image: ${FRONTEND_IMAGE}"
-          echo ""
-          echo "To complete deployment, configure your platform (Render, Railway,"
-          echo "or a VM with docker-compose) to pull these images and run them."
-          echo "See Phase 14 for cloud deployment finalization."
+          if [ -n "${RENDER_DEPLOY_HOOK}" ]; then
+            curl -X POST "${RENDER_DEPLOY_HOOK}"
+            echo "Render deploy triggered."
+          else
+            echo "RENDER_DEPLOY_HOOK not set — skipping Render deploy."
+            echo "Set it in GitHub Secrets (Settings > Secrets > Actions)."
+          fi
