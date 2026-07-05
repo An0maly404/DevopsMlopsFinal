@@ -27,11 +27,37 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
           cd backend
           pip install -r requirements.txt
           pip install pytest httpx
+          pip install dvc scikit-learn pandas
+
+      - name: Configure DVC auth for DagsHub
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        run: |
+          dvc remote modify origin --local auth basic
+          dvc remote modify origin --local user ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+          dvc remote modify origin --local password ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+
+      - name: Pull data with DVC
+        run: dvc pull
+
+      - name: Train model
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        run: python training/train.py
+
+      - name: Register model in MLflow registry
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        run: python training/register_model.py
 
       - name: Run full test suite
         env:
@@ -89,16 +115,20 @@ jobs:
           echo "BACKEND_IMAGE=ghcr.io/${OWNER}/mlops-backend:staging" >> $GITHUB_ENV
           echo "FRONTEND_IMAGE=ghcr.io/${OWNER}/mlops-frontend:staging" >> $GITHUB_ENV
 
-      - name: Deploy to staging via docker-compose
+      - name: Deploy to staging
         env:
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
           MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_STAGING_DEPLOY_HOOK }}
         run: |
-          echo "Staging deployment ready."
+          echo "Deploying to staging environment..."
           echo "Backend image:  ${BACKEND_IMAGE}"
           echo "Frontend image: ${FRONTEND_IMAGE}"
-          echo ""
-          echo "To complete deployment, configure your platform (Render, Railway,"
-          echo "or a VM with docker-compose) to pull these images and run them."
-          echo "See Phase 14 for cloud deployment finalization."
+          if [ -n "${RENDER_DEPLOY_HOOK}" ]; then
+            curl -X POST "${RENDER_DEPLOY_HOOK}"
+            echo "Render deploy triggered."
+          else
+            echo "RENDER_DEPLOY_HOOK not set — skipping Render deploy."
+            echo "Set it in GitHub Secrets (Settings > Secrets > Actions)."
+          fi
