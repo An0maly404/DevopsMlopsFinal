@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import './App.css'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
 const FEATURE_FIELDS = [
   { name: 'MedInc', label: 'Median Income (tens of thousands)', placeholder: 'e.g. 8.3252', step: '0.0001' },
   { name: 'HouseAge', label: 'House Age (years)', placeholder: 'e.g. 41', step: '1' },
@@ -37,7 +39,7 @@ function App() {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/predict', {
+      const response = await fetch(`${API_URL}/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
