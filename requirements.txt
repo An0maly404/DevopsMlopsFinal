@@ -1,6 +1,0 @@
-dvc
-dagshub
-scikit-learn
-pandas
-mlflow
-python-dotenv

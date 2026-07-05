@@ -3,7 +3,3 @@ node_modules/
 .DS_Store
 venv/
 .venv/
-roadmap.txt
-final_project_2026.pdf
-mlflow.db
-mlruns/
