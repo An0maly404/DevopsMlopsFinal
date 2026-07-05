@@ -3,3 +3,9 @@ node_modules/
 .DS_Store
 venv/
 .venv/
+__pycache__/
+*.pyc
+roadmap.txt
+final_project_2026.pdf
+mlflow.db
+mlruns/
