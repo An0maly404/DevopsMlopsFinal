@@ -7,16 +7,7 @@ services:
     rootDir: backend
     dockerfilePath: ./Dockerfile
     envVars:
-<<<<<<< Updated upstream
-      - key: MLFLOW_TRACKING_URI
-        fromGroup: mlops-secrets
-      - key: MLFLOW_TRACKING_USERNAME
-        fromGroup: mlops-secrets
-      - key: MLFLOW_TRACKING_PASSWORD
-        fromGroup: mlops-secrets
-=======
       - fromGroup: mlops-secrets
->>>>>>> Stashed changes
     healthCheckPath: /health
 
   - type: web
