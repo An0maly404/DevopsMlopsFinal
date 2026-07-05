@@ -21,4 +21,22 @@ services:
     plan: free
     envVars:
       - key: VITE_API_URL
-        value: https://mlops-backend.onrender.com
+        value: https://mlops-backend-j5im.onrender.com
+
+  - type: web
+    name: mlops-prometheus
+    runtime: docker
+    repo: https://github.com/An0maly404/DevopsMlopsFinal
+    branch: main
+    rootDir: monitoring
+    dockerfilePath: ./Dockerfile.prometheus
+    plan: free
+
+  - type: web
+    name: mlops-grafana
+    runtime: docker
+    repo: https://github.com/An0maly404/DevopsMlopsFinal
+    branch: main
+    rootDir: monitoring
+    dockerfilePath: ./Dockerfile.grafana
+    plan: free
