@@ -7,9 +7,12 @@ sys.stdout.reconfigure(encoding="utf-8")
 import mlflow
 import mlflow.sklearn
 import pandas as pd
+from dotenv import load_dotenv
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
+
+load_dotenv()
 
 DATA_PATH = Path(__file__).parent.parent / "data" / "raw" / "california_housing.csv"
 DVC_POINTER_PATH = DATA_PATH.with_suffix(".csv.dvc")
