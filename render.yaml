@@ -7,6 +7,7 @@ services:
     rootDir: backend
     dockerfilePath: ./Dockerfile
     envVars:
+<<<<<<< Updated upstream
       - key: MLFLOW_TRACKING_URI
         value: https://dagshub.com/noah.hemon/DevopsMLopsProject.mlflow
       - key: MLFLOW_TRACKING_USERNAME
@@ -14,6 +15,9 @@ services:
       - key: MLFLOW_TRACKING_PASSWORD
         value: 8cb0606103a4ffd2822ad447ce00fbff200b656a
     plan: free
+=======
+      - fromGroup: mlops-secrets
+>>>>>>> Stashed changes
     healthCheckPath: /health
 
   - type: web
@@ -23,7 +27,10 @@ services:
     branch: main
     rootDir: frontend
     dockerfilePath: ./Dockerfile
+<<<<<<< Updated upstream
     plan: free
+=======
+>>>>>>> Stashed changes
     envVars:
       - key: VITE_API_URL
         value: https://mlops-backend.onrender.com
