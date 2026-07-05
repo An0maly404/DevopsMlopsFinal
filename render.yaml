@@ -13,6 +13,7 @@ services:
         value: noah.hemon
       - key: MLFLOW_TRACKING_PASSWORD
         value: 8cb0606103a4ffd2822ad447ce00fbff200b656a
+    plan: free
     healthCheckPath: /health
 
   - type: web
@@ -22,6 +23,7 @@ services:
     branch: main
     rootDir: frontend
     dockerfilePath: ./Dockerfile
+    plan: free
     envVars:
       - key: VITE_API_URL
         value: https://mlops-backend.onrender.com
