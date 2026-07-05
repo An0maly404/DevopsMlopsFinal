@@ -1,5 +1,3 @@
-"""Train a regression model on the California housing data and log the run to MLflow."""
-
 import subprocess
 import sys
 from pathlib import Path
