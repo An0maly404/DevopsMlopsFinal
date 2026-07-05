@@ -72,3 +72,28 @@ jobs:
           tags: |
             ${{ env.FRONTEND_IMAGE }}:staging
             ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+
+  deploy-staging:
+    needs: test-build-push
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to staging via docker-compose
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+          BACKEND_IMAGE: ${{ env.BACKEND_IMAGE }}:staging
+          FRONTEND_IMAGE: ${{ env.FRONTEND_IMAGE }}:staging
+        run: |
+          echo "Staging deployment ready."
+          echo "Backend image:  ${BACKEND_IMAGE}"
+          echo "Frontend image: ${FRONTEND_IMAGE}"
+          echo ""
+          echo "To complete deployment, configure your platform (Render, Railway,"
+          echo "or a VM with docker-compose) to pull these images and run them."
+          echo "See Phase 14 for cloud deployment finalization."
