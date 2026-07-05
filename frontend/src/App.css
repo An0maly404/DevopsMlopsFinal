@@ -1,33 +1,41 @@
 .app-container {
-  max-width: 720px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 40px 20px;
-  text-align: center;
+  padding: 48px 24px;
 }
 
 .app-container h1 {
-  font-size: 28px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
   color: var(--text-h);
-  margin-bottom: 4px;
+  margin: 0 0 6px;
+  text-align: center;
 }
 
 .subtitle {
   color: var(--text);
-  margin-bottom: 32px;
-  font-size: 16px;
+  margin: 0 0 36px;
+  font-size: 15px;
+  text-align: center;
+  line-height: 1.5;
 }
 
 .prediction-form {
-  text-align: left;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 18px 20px;
   margin-bottom: 24px;
 
-  @media (max-width: 600px) {
+  @media (max-width: 520px) {
     grid-template-columns: 1fr;
   }
 }
@@ -35,85 +43,117 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .form-field label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-h);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--text);
 }
 
 .form-field input {
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 15px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
   background: var(--bg);
   color: var(--text-h);
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.form-field input::placeholder {
+  color: var(--text);
+  opacity: 0.5;
 }
 
 .form-field input:focus {
-  outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-bg);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .submit-btn {
   display: block;
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
+  padding: 13px;
+  font-size: 15px;
   font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.2px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover, var(--accent)));
   color: #fff;
-  transition: opacity 0.2s;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  box-shadow: 0 2px 8px var(--accent-bg);
 }
 
 .submit-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .submit-btn:hover:not(:disabled) {
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px var(--accent-bg);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .result-card {
-  margin-top: 24px;
-  padding: 16px 20px;
-  border-radius: 8px;
-  font-size: 16px;
+  margin-top: 20px;
+  padding: 18px 22px;
+  border-radius: 12px;
+  font-size: 15px;
   text-align: center;
+  line-height: 1.6;
+  animation: fadeIn 0.25s ease;
+}
+
+.result-card strong {
+  display: block;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 }
 
 .result-card.success {
-  background: #d1fae5;
+  background: #ecfdf5;
   color: #065f46;
   border: 1px solid #a7f3d0;
 }
 
 .result-card.error {
-  background: #fee2e2;
+  background: #fef2f2;
   color: #991b1b;
   border: 1px solid #fecaca;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @media (prefers-color-scheme: dark) {
   .result-card.success {
-    background: rgba(6, 95, 70, 0.25);
+    background: rgba(6, 95, 70, 0.18);
     color: #6ee7b7;
-    border-color: rgba(6, 95, 70, 0.4);
+    border-color: rgba(6, 95, 70, 0.3);
   }
 
   .result-card.error {
-    background: rgba(153, 27, 27, 0.25);
+    background: rgba(153, 27, 27, 0.18);
     color: #fca5a5;
-    border-color: rgba(153, 27, 27, 0.4);
+    border-color: rgba(153, 27, 27, 0.3);
   }
 }
     border-radius: 6px;

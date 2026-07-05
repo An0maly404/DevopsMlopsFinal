@@ -59,7 +59,7 @@ function App() {
 
   return (
     <main className="app-container">
-      <h1>🏠 California Housing Price Predictor</h1>
+      <h1>California Housing Price Predictor</h1>
       <p className="subtitle">Enter housing features to predict the median house value</p>
 
       <form onSubmit={handleSubmit} className="prediction-form">
