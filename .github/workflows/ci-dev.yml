@@ -32,7 +32,12 @@ jobs:
       - name: Run integration tests
         run: |
           cd backend
-          python -m pytest tests/test_integration.py tests/test_e2e.py -v
+          python -m pytest tests/test_integration.py -v
+
+      - name: Run end-to-end tests
+        run: |
+          cd backend
+          python -m pytest tests/test_e2e.py -v
 
       - name: Build backend Docker image
         run: docker build -t mlops-backend ./backend
