@@ -21,4 +21,4 @@ services:
     plan: free
     envVars:
       - key: VITE_API_URL
-        value: https://mlops-backend.onrender.com
+        value: https://mlops-backend-j5im.onrender.com

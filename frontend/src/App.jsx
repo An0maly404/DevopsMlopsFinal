@@ -3,7 +3,7 @@ import './App.css'
 
 const API_URL = import.meta.env.VITE_API_URL ||
   (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-    ? 'https://mlops-backend.onrender.com'
+    ? 'https://mlops-backend-j5im.onrender.com'
     : 'http://localhost:8000')
 
 const FEATURE_FIELDS = [
