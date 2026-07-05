@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import './App.css'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? 'https://mlops-backend.onrender.com'
+    : 'http://localhost:8000')
 
 const FEATURE_FIELDS = [
   { name: 'MedInc', label: 'Median Income (tens of thousands)', placeholder: 'e.g. 8.3252', step: '0.0001' },
