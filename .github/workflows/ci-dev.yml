@@ -22,7 +22,7 @@ jobs:
         run: |
           cd backend
           pip install -r requirements.txt
-          pip install mlflow python-dotenv pytest httpx
+          pip install pytest httpx
 
       - name: Run unit tests
         run: |
