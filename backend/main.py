@@ -6,6 +6,10 @@ from registry import get_production_model
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import Gauge
+import time
+
 
 
 
@@ -35,12 +39,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+Instrumentator().instrument(app).expose(app)
 
+START_TIME = time.time()
+uptime_gauge = Gauge("backend_uptime_seconds", "Time since the backend started, in seconds")
+uptime_gauge.set_function(lambda: time.time() - START_TIME)
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
 
 class HousingFeatures(BaseModel):
     MedInc: float
