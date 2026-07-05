@@ -1,121 +1,100 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
+const FEATURE_FIELDS = [
+  { name: 'MedInc', label: 'Median Income (tens of thousands)', placeholder: 'e.g. 8.3252', step: '0.0001' },
+  { name: 'HouseAge', label: 'House Age (years)', placeholder: 'e.g. 41', step: '1' },
+  { name: 'AveRooms', label: 'Average Rooms', placeholder: 'e.g. 6.98', step: '0.01' },
+  { name: 'AveBedrms', label: 'Average Bedrooms', placeholder: 'e.g. 1.02', step: '0.01' },
+  { name: 'Population', label: 'Population', placeholder: 'e.g. 322', step: '1' },
+  { name: 'AveOccup', label: 'Average Occupancy', placeholder: 'e.g. 2.55', step: '0.01' },
+  { name: 'Latitude', label: 'Latitude', placeholder: 'e.g. 37.88', step: '0.01' },
+  { name: 'Longitude', label: 'Longitude', placeholder: 'e.g. -122.23', step: '0.01' },
+]
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [formValues, setFormValues] = useState({
+    MedInc: '', HouseAge: '', AveRooms: '', AveBedrms: '',
+    Population: '', AveOccup: '', Latitude: '', Longitude: '',
+  })
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  const handleChange = (name, value) => {
+    setFormValues((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+    setResult(null)
+    setLoading(true)
+
+    const payload = {}
+    for (const [key, val] of Object.entries(formValues)) {
+      payload[key] = parseFloat(val)
+    }
+
+    try {
+      const response = await fetch('http://localhost:8000/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}))
+        throw new Error(errData.detail || `Server error (${response.status})`)
+      }
+      const data = await response.json()
+      setResult(data.prediction)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <main className="app-container">
+      <h1>🏠 California Housing Price Predictor</h1>
+      <p className="subtitle">Enter housing features to predict the median house value</p>
+
+      <form onSubmit={handleSubmit} className="prediction-form">
+        <div className="form-grid">
+          {FEATURE_FIELDS.map(({ name, label, placeholder, step }) => (
+            <div key={name} className="form-field">
+              <label htmlFor={name}>{label}</label>
+              <input
+                id={name}
+                type="number"
+                step={step}
+                placeholder={placeholder}
+                value={formValues[name]}
+                onChange={(e) => handleChange(name, e.target.value)}
+                required
+              />
+            </div>
+          ))}
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+
+        <button type="submit" className="submit-btn" disabled={loading}>
+          {loading ? 'Predicting…' : 'Predict'}
         </button>
-      </section>
+      </form>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      {result !== null && (
+        <div className="result-card success">
+          <strong>Predicted Median House Value:</strong> ${(result * 100000).toLocaleString(undefined, { maximumFractionDigits: 0 })}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      {error && (
+        <div className="result-card error">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
+    </main>
   )
 }
 
