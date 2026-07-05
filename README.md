@@ -60,18 +60,18 @@ Everything on the left (frontend → backend → model in registry) is what runs
 
 There are three GitHub Actions workflows, matching the three stages of the branching model (`feature/* → dev → staging → main`).
 
-**`ci-dev.yml`** — runs on every PR into `dev`. Installs backend dependencies, runs the unit tests and integration tests, then builds (but doesn't push) both Docker images. This is the gate that has to pass before anything gets into `dev`.
+**`ci-dev.yml`** - runs on every PR into `dev`. Installs backend dependencies, runs the unit tests and integration tests, then builds (but doesn't push) both Docker images. This is the gate that has to pass before anything gets into `dev`.
 
-**`ci-staging.yml`** — runs on push to `staging`. Runs the full test suite again, then runs the quality gate script (`training/quality_gate.py`) against whatever model is currently aliased `staging` in the registry. If that passes, it builds and pushes both Docker images to GHCR tagged `:staging`, and deploys them.
+**`ci-staging.yml`** - runs on push to `staging`. Runs the full test suite again, then runs the quality gate script (`training/quality_gate.py`) against whatever model is currently aliased `staging` in the registry. If that passes, it builds and pushes both Docker images to GHCR tagged `:staging`, and deploys them.
 
-**`ci-production.yml`** — runs on push to `main`. Runs the quality gate again, and only if it passes does it run `training/promote_model.py` to move the model from the `staging` alias to `production`, then builds, pushes, and deploys the `:production` images. If the gate fails, nothing downstream runs — production stays untouched.
+**`ci-production.yml`** - runs on push to `main`. Runs the quality gate again, and only if it passes does it run `training/promote_model.py` to move the model from the `staging` alias to `production`, then builds, pushes, and deploys the `:production` images. If the gate fails, nothing downstream runs - production stays untouched.
 
 ## Model promotion pipeline
 
-1. `training/train.py` trains a model on the DVC-tracked dataset and logs the run to MLflow: parameters, metrics (`rmse`, `r2`), the model artifact, and two tags — the git commit and the DVC data hash — so any run can be traced back to the exact code and data that produced it.
+1. `training/train.py` trains a model on the DVC-tracked dataset and logs the run to MLflow: parameters, metrics (`rmse`, `r2`), the model artifact, and two tags - the git commit and the DVC data hash - so any run can be traced back to the exact code and data that produced it.
 2. `training/register_model.py` finds the best run in the experiment (lowest `rmse`), registers it as a new version of `california-housing-model`, and aliases that version `staging`.
 3. `training/quality_gate.py` checks the `staging` model's `rmse` against a threshold and exits pass/fail. This is what both the staging and production pipelines call before doing anything else.
-4. `training/promote_model.py` re-aliases the same version from `staging` to `production` — this only runs after the gate passes on `main`.
+4. `training/promote_model.py` re-aliases the same version from `staging` to `production` - this only runs after the gate passes on `main`.
 5. The backend loads its model at startup from the registry via `get_production_model()`.
 
 ## Monitoring
