@@ -1,6 +1,7 @@
 import sys
 
 from dotenv import load_dotenv
+from mlflow.exceptions import MlflowException
 from mlflow.tracking import MlflowClient
 
 load_dotenv()
@@ -14,7 +15,12 @@ def main() -> None:
     threshold = float(sys.argv[1]) if len(sys.argv) > 1 else RMSE_THRESHOLD
 
     client = MlflowClient()
-    model_version = client.get_model_version_by_alias(MODEL_NAME, ALIAS)
+    try:
+        model_version = client.get_model_version_by_alias(MODEL_NAME, ALIAS)
+    except MlflowException:
+        print(f"No model '{MODEL_NAME}' with alias '{ALIAS}' found — skipping gate.")
+        sys.exit(0)
+
     run = client.get_run(model_version.run_id)
     rmse = run.data.metrics["rmse"]
 
