@@ -1,41 +1,62 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import joblib
-from typing import List
+from contextlib import asynccontextmanager
+from registry import get_production_model
 
+ml_model = {}
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: runs once, before the server accepts requests
+    try:
+        ml_model["model"] = get_production_model()
+        print("Production model loaded successfully.")
+    except Exception as e:
+        ml_model["model"] = None
+        print(f"!!!!!!!!!!!!!!!!!!Could not load production model: {e}")
+
+    yield
+    # Shutdown: nothing to clean up for now
+    ml_model.clear()
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/health")
-def health_check():
-	return {"status": "alive"}
+def health():
+    return {"status": "ok"}
 
 
 class HousingFeatures(BaseModel):
-	median_income: float
-	house_age: float
-	avg_rooms: float
-	avg_bedrooms: float
-	population: float
-	avg_occupancy: float
-	latitude: float
-	longitude: float
+    MedInc: float
+    HouseAge: float
+    AveRooms: float
+    AveBedrms: float
+    Population: float
+    AveOccup: float
+    Latitude: float
+    Longitude: float
 
 
 @app.post("/predict")
 def predict(features: HousingFeatures):
-	# EXPECT THE FILE "dummy_model.joblib" TO BE IN THE SAME DIRECTORY AS THIS SCRIPT !!
-	model = joblib.load("dummy_model.joblib")
-	vals: List[float] = [
-		features.median_income,
-		features.house_age,
-		features.avg_rooms,
-		features.avg_bedrooms,
-		features.population,
-		features.avg_occupancy,
-		features.latitude,
-		features.longitude,
-	]
-	pred = model.predict([vals])[0]
-	return {"prediction": float(pred)}
+    model = ml_model.get("model")
+    if model is None:
+        raise HTTPException(
+            status_code=503,
+            detail="No production model available yet."
+        )
+
+    input_data = [[
+        features.MedInc,
+        features.HouseAge,
+        features.AveRooms,
+        features.AveBedrms,
+        features.Population,
+        features.AveOccup,
+        features.Latitude,
+        features.Longitude,
+    ]]
+
+    prediction = model.predict(input_data)
+    return {"prediction": prediction[0]}
