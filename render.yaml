@@ -31,3 +31,12 @@ services:
     rootDir: monitoring
     dockerfilePath: ./Dockerfile.prometheus
     plan: free
+
+  - type: web
+    name: mlops-grafana
+    runtime: docker
+    repo: https://github.com/An0maly404/DevopsMlopsFinal
+    branch: main
+    rootDir: monitoring
+    dockerfilePath: ./Dockerfile.grafana
+    plan: free
