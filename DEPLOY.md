@@ -30,16 +30,19 @@ In GitHub `Settings → Secrets → Actions`:
 Get these from Render: service → **Settings** → **Deploy Hook**.
 
 ### 5. Public URLs
-After deploy:
-- Frontend: `https://mlops-frontend.onrender.com`
-- Backend: `https://mlops-backend.onrender.com`
-- Backend health: `https://mlops-backend.onrender.com/health`
+Render appends a random suffix if the plain name is taken. Current live URLs:
+- Frontend: `https://mlops-frontend-9y6w.onrender.com`
+- Backend: `https://mlops-backend-j5im.onrender.com`
+- Backend health: `https://mlops-backend-j5im.onrender.com/health`
+- Prometheus: `https://mlops-prometheus-wa1c.onrender.com`
+- Grafana: `https://mlops-grafana-3skj.onrender.com` (currently returning 502, needs redeploying)
 
 ### 6. Verify end-to-end
-1. Open `https://mlops-frontend.onrender.com`
+1. Open the frontend URL above
 2. Fill the prediction form
 3. Submit — you should see a predicted house value
 
 ## Monitoring (Phase 13)
-- Prometheus: configured to scrape `/metrics` from backend
-- Grafana: `http://localhost:3000` (username: `admin`, password: `admin`)
+- Prometheus is deployed as its own Render service and scrapes the live backend's `/metrics` endpoint directly - confirmed via its `/api/v1/targets` endpoint.
+- Grafana is deployed separately as a data source on top of it, but the dashboard is currently down (502) and needs redeploying.
+- For local development, both also run via `docker-compose up` at `http://localhost:9090` and `http://localhost:3000` (username: `admin`, password: `admin`).
