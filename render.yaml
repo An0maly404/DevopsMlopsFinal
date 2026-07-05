@@ -8,11 +8,12 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: MLFLOW_TRACKING_URI
-        fromGroup: mlops-secrets
+        value: https://dagshub.com/noah.hemon/DevopsMLopsProject.mlflow
       - key: MLFLOW_TRACKING_USERNAME
-        fromGroup: mlops-secrets
+        value: noah.hemon
       - key: MLFLOW_TRACKING_PASSWORD
-        fromGroup: mlops-secrets
+        value: 8cb0606103a4ffd2822ad447ce00fbff200b656a
+    plan: free
     healthCheckPath: /health
 
   - type: web
@@ -22,6 +23,7 @@ services:
     branch: main
     rootDir: frontend
     dockerfilePath: ./Dockerfile
+    plan: free
     envVars:
       - key: VITE_API_URL
         value: https://mlops-backend.onrender.com
