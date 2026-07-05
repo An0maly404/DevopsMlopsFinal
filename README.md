@@ -60,11 +60,11 @@ Everything on the left (frontend → backend → model in registry) is what runs
 
 There are three GitHub Actions workflows, matching the three stages of the branching model (`feature/* → dev → staging → main`).
 
-**`ci-dev.yml`** - runs on every PR into `dev`. Installs backend dependencies, runs the unit tests and integration tests, then builds (but doesn't push) both Docker images. This is the gate that has to pass before anything gets into `dev`.
+**`ci-dev.yml`** - runs on every PR into `dev`. Installs backend dependencies, then runs unit tests, integration tests, and the end-to-end test as separate named steps, then builds (but doesn't push) both Docker images. This is the gate that has to pass before anything gets into `dev`.
 
-**`ci-staging.yml`** - runs on push to `staging`. Runs the full test suite again, then runs the quality gate script (`training/quality_gate.py`) against whatever model is currently aliased `staging` in the registry. If that passes, it builds and pushes both Docker images to GHCR tagged `:staging`, and deploys them.
+**`ci-staging.yml`** - runs on push to `staging`. Pulls the DVC-tracked dataset, trains a new candidate model (`training/train.py`), registers it (`training/register_model.py`, aliased `staging`), runs the full test suite, then runs the quality gate (`training/quality_gate.py`) against that candidate. If that passes, it builds and pushes both Docker images to GHCR tagged `:staging` and triggers a deploy to the staging service on Render.
 
-**`ci-production.yml`** - runs on push to `main`. Runs the quality gate again, and only if it passes does it run `training/promote_model.py` to move the model from the `staging` alias to `production`, then builds, pushes, and deploys the `:production` images. If the gate fails, nothing downstream runs - production stays untouched.
+**`ci-production.yml`** - runs on push to `main`. Runs the quality gate again, and only if it passes does it run `training/promote_model.py` to move the model from the `staging` alias to `production`, then builds, pushes, and deploys the `:production` images to Render. If the gate fails, nothing downstream runs - production stays untouched.
 
 ## Model promotion pipeline
 
@@ -76,7 +76,17 @@ There are three GitHub Actions workflows, matching the three stages of the branc
 
 ## Monitoring
 
-The backend exposes a `/metrics` endpoint (request count, request latency, failed requests, health status). Prometheus is configured to scrape that endpoint on the production backend, and a Grafana dashboard is built on top of it showing request volume, latency, error rate, and health status over time. Access details for the dashboard are environment-specific and set up alongside the production deployment.
+The backend exposes a `/metrics` endpoint (request count, request latency, failed requests, health status), scraped by Prometheus every 5 seconds. Grafana is connected to Prometheus as a data source, with a "Backend Monitoring" dashboard showing request volume, prediction latency (p95), error rate, and backend uptime.
+
+- Prometheus UI: `http://localhost:9090`
+- Grafana dashboard: `http://localhost:3000` (login: `admin` / `admin`)
+
+## Deployment
+
+The app deploys to [Render](https://render.com) via the `render.yaml` blueprint at the repo root - one web service for the backend, one for the frontend, both built from their Dockerfiles. `ci-staging.yml` and `ci-production.yml` trigger a Render deploy hook after their respective quality gates pass. See [DEPLOY.md](DEPLOY.md) for the full setup steps (Render account, environment secrets, GitHub deploy hook secrets).
+
+- Frontend: `https://mlops-frontend.onrender.com`
+- Backend: `https://mlops-backend.onrender.com`
 
 ## Reproducibility
 
