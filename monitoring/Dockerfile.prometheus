@@ -1,6 +1,5 @@
 FROM prom/prometheus:latest
 COPY prometheus-prod.yml /etc/prometheus/prometheus.yml
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 CMD ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus"]
