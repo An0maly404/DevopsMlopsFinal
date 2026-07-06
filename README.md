@@ -85,7 +85,7 @@ The backend exposes a `/metrics` endpoint via `prometheus-fastapi-instrumentator
 In production, Prometheus is deployed as its own Render service and scrapes the live backend directly (confirmed via its `/api/v1/targets` endpoint - target `mlops-backend-j5im.onrender.com/metrics` is up). Grafana runs on **Grafana Cloud** (free tier) rather than self-hosted, with our Render-hosted Prometheus configured as its data source. The dashboard visualizes request volume over time, prediction latency over time, error rate / failed requests, and backend health status.
 
 - Prometheus (production): `https://mlops-prometheus-wa1c.onrender.com`
-- Grafana dashboard (production, Grafana Cloud): `<GRAFANA_CLOUD_DASHBOARD_URL>` — viewer access is available via the shared link above; ask a team member for an invite if you need edit access.
+- Grafana dashboard (production, Grafana Cloud): `https://mlops-grafana-3skj.onrender.com/d/adwnmck/backend-monitoring` — viewer access is available via the shared link above; ask a team member for an invite if you need edit access.
 - Prometheus UI (local): `http://localhost:9090`
 - Grafana dashboard (local): `http://localhost:3000` (login: `admin` / `admin`)
 
